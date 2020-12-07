@@ -60,20 +60,28 @@ def mostrarTiempo(tiempo):
         unidades = obtenerUnidades(tiempo)
         mostrarNumeros(unidades,TERCERACOLUMNA)
 
+def establecerTiempoAlarma():
+    tiempo_alarma = 0
+    while !button_b.is_pressed():
+        mostrarTiempo(tiempo_alarma)
+        if button_a.is_pressed():
+            tiempo_alarma += 1
+            sleep(1000)
+            segundos += 1
+        display.clear()
+    return tiempo_alarma
+
 def establecerAlarma():
-    pass
-
-def establecerHoraAlarma():
-    pass
-
-def establecerMinutosAlarma():
-    pass
+    hora_alarma = establecerTiempoAlarma()
+    minuto_alarma = establecerTiempoAlarma()
+    return (hora_alarma,minuto_alarma,0)
 
 def alarma():
     pass
 
 def comprobarNumeroAlarmas():
-    pass
+    if len(lista) > 5:
+        display.scrool("TOO MANY ALARMS")
 
 def ordenarAlarmas():
     pass
