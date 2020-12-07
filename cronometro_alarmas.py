@@ -3,6 +3,7 @@ from microbit import *
 FILAS = 5
 PRIMERACOLUMNA = 0
 TERCERACOLUMNA = 3
+DISPLAYAPAGADO = "00000:00000"
 
 zero = "99999:99999"
 one = "00000:99999"
@@ -60,6 +61,14 @@ def mostrarTiempo(tiempo):
         unidades = obtenerUnidades(tiempo)
         mostrarNumeros(unidades,TERCERACOLUMNA)
 
+def limpiarDisplay():
+    """
+        Esta funcion apaga todos los pixeles del display,seria un equivalente a display.clear().
+    """
+    display_apagado = DISPLAYAPAGADO.split(":")
+    mostrarNumeros(display_apagado,PRIMERACOLUMNA)
+    mostrarNumeros(display_apagado,TERCERACOLUMNA)
+
 def establecerTiempoAlarma():
     tiempo_alarma = 0
     while !button_b.is_pressed():
@@ -116,7 +125,7 @@ def main():
             mostrarTiempo(minutos)
             segundos += 1
             sleep(1000)
-        display.clear()
+        limpiarDisplay()
         mostrarTiempo(segundos)
         sleep(1000) # Para que el bucle tarde un segundo en hacerse
         segundos += 1 # Aumentamos el valor de los segundos
@@ -126,7 +135,7 @@ def main():
         if minutos == 60:
             minutos = 0
             horas += 1
-        display.clear()
+        limpiarDisplay()
 
 if __name__ == "__main__":
     main()
