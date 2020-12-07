@@ -90,6 +90,24 @@ def mostrarMinutos(minutos):
         mostrarNumeros(unidades,TERCERACOLUMNA)
     sleep(1000)
 
+def establecerAlarma():
+    pass
+
+def establecerHoraAlarma():
+    pass
+
+def establecerMinutosAlarma():
+    pass
+
+def alarma():
+    pass
+
+def comprobarNumeroAlarmas():
+    pass
+
+def ordenarAlarmas():
+    pass
+
 def main():
 
     segundos = 0
