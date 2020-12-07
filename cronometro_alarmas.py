@@ -4,6 +4,7 @@ FILAS = 5
 PRIMERACOLUMNA = 0
 TERCERACOLUMNA = 3
 DISPLAYAPAGADO = "00000:00000"
+SEGUNDOSALARMA = 0
 
 zero = "99999:99999"
 one = "00000:99999"
@@ -80,12 +81,13 @@ def establecerTiempoAlarma():
         display.clear()
     return tiempo_alarma
 
-def establecerAlarma():
+def establecerAlarma(lista):
     hora_alarma = establecerTiempoAlarma()
     minuto_alarma = establecerTiempoAlarma()
-    return (hora_alarma,minuto_alarma,0)
+    alarma = (hora_alarma,minuto_alarma,SEGUNDOSALARMA)
+    lista[len(lista)] = alarma
 
-def alarma():
+def alarma(lista):
     for i in range(5):
         display.show(Image.HAPPY)
         sleep(500)
@@ -94,7 +96,8 @@ def alarma():
         sleep(500)
         display.clear()
     segundos += 5
-   ## Falta borrar la alarma
+    lista = borrarAlarma()
+    return lista
 
 def comprobarNumeroAlarmas():
     if len(lista) > 5:
@@ -108,6 +111,12 @@ def ordenarAlarmas(lista):
                     auxiliar = lista[j]
                     lista[j] = lista[j-1]
                     lista[j-1] = auxiliar
+
+def borrarAlarma():
+    lista_nueva = ()
+    for i in range(len(lista)-1):
+        lista_nueva[i] = lista[i+1]
+    return lista_nueva
 
 def main():
 
