@@ -83,8 +83,14 @@ def comprobarNumeroAlarmas():
     if len(lista) > 5:
         display.scrool("TOO MANY ALARMS")
 
-def ordenarAlarmas():
-    pass
+def ordenarAlarmas(lista):
+    if len(lista) > 1:
+        for i in range(len(lista)):
+            for j in range(1,len(lista)+1):
+                if lista[j] < lista[j-1]:
+                    auxiliar = lista[j]
+                    lista[j] = lista[j-1]
+                    lista[j-1] = auxiliar
 
 def main():
 
