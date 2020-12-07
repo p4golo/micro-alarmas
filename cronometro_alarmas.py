@@ -77,7 +77,15 @@ def establecerAlarma():
     return (hora_alarma,minuto_alarma,0)
 
 def alarma():
-    pass
+    for i in range(5):
+        display.show(Image.HAPPY)
+        sleep(500)
+        display.clear()
+        display.show(Image.SAD)
+        sleep(500)
+        display.clear()
+    segundos += 5
+   ## Falta borrar la alarma
 
 def comprobarNumeroAlarmas():
     if len(lista) > 5:
@@ -97,6 +105,7 @@ def main():
     segundos = 0
     minutos = 0
     horas = 0
+    alarmas_pendientes = []
 
     while True:
         if button_a.is_pressed():
