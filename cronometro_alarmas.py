@@ -5,6 +5,7 @@ PRIMERACOLUMNA = 0
 TERCERACOLUMNA = 3
 DISPLAYAPAGADO = "00000:00000"
 SEGUNDOSALARMA = 0
+MAXALARMAS = 5
 
 zero = "99999:99999"
 one = "00000:99999"
@@ -30,36 +31,20 @@ def mostrarNumeros(numero,posicion):
     for i in range(FILAS): # Recorre todas las filas y enciende los led de la siguiente columna de la seleccionada con los valores dados
         display.set_pixel(posicion + 1,i,int(numero[1][i]))
 
-def obtenerDecenas(numero):
-    """
-        Esta funcion devuelve las decenas del numero dado, con el valor necesario para representarlo en el microbit.
-        @param numero: numero entero
-    """
-    decenas = numero // 10
-    decenas = fonts[decenas].split(":")
-    return decenas
-
-def obtenerUnidades(numero):
-    """
-        Esta funcion devuelve las unidades del numero dado, con el valor necesario para representarlo en el microbit.
-        @param numero: numero entero
-    """
-    unidades = numero % 10
-    unidades = fonts[unidades].split(":")
-    return unidades
-
 def mostrarTiempo(tiempo):
     """
         Esta funcion muestra en el panel del microbit el numero de segundos, minutos o segundos que han pasado.
         @param segundos: numero entero de segundos, minutos o horas que han pasado.
     """
     if tiempo > 9:
-        decenas = obtenerDecenas(tiempo)
-        unidades = obtenerUnidades(tiempo)
+        decenas = tiempo // 10
+        decenas = fonts[decenas].split(":")
+        unidades = tiempo % 10
+        unidades = fonts[unidades].split(":")
         mostrarNumeros(decenas,PRIMERACOLUMNA)
         mostrarNumeros(unidades,TERCERACOLUMNA)
     else:
-        unidades = obtenerUnidades(tiempo)
+        unidades = fonts[tiempo].split(":")
         mostrarNumeros(unidades,TERCERACOLUMNA)
 
 def limpiarDisplay():
@@ -72,22 +57,29 @@ def limpiarDisplay():
 
 def establecerTiempoAlarma():
     tiempo_alarma = 0
-    while !button_b.is_pressed():
+    while not button_b.is_pressed():
         mostrarTiempo(tiempo_alarma)
         if button_a.is_pressed():
             tiempo_alarma += 1
-            sleep(1000)
-            segundos += 1
+            sleep(500)
         display.clear()
     return tiempo_alarma
 
 def establecerAlarma(lista):
+    nueva_lista = [(0,0,0)]*(len(lista)+1)
     hora_alarma = establecerTiempoAlarma()
+    sleep(1000)
     minuto_alarma = establecerTiempoAlarma()
     alarma = (hora_alarma,minuto_alarma,SEGUNDOSALARMA)
-    lista[len(lista)] = alarma
+    if len(lista) == 0:
+        nueva_lista[0] = alarma
+    else:
+        for i in range(len(lista)):
+            nueva_lista[i] = lista[i]
+        nueva_lista[len(lista)] = alarma
+    return nueva_lista
 
-def alarma(lista):
+def alarma():
     for i in range(5):
         display.show(Image.HAPPY)
         sleep(500)
@@ -95,25 +87,18 @@ def alarma(lista):
         display.show(Image.SAD)
         sleep(500)
         display.clear()
-    segundos += 5
-    lista = borrarAlarma()
-    return lista
-
-def comprobarNumeroAlarmas():
-    if len(lista) > 5:
-        display.scrool("TOO MANY ALARMS")
 
 def ordenarAlarmas(lista):
     if len(lista) > 1:
         for i in range(len(lista)):
-            for j in range(1,len(lista)+1):
+            for j in range(1,len(lista)):
                 if lista[j] < lista[j-1]:
                     auxiliar = lista[j]
                     lista[j] = lista[j-1]
                     lista[j-1] = auxiliar
 
-def borrarAlarma():
-    lista_nueva = ()
+def borrarAlarma(lista):
+    lista_nueva = [(0,0,0)]*(len(lista))
     for i in range(len(lista)-1):
         lista_nueva[i] = lista[i+1]
     return lista_nueva
@@ -126,6 +111,12 @@ def main():
     alarmas_pendientes = []
 
     while True:
+        if accelerometer.was_gesture("shake"):
+            if len(alarmas_pendientes) == MAXALARMAS:
+                display.scroll("TOO MANY ALARMS")
+            else:
+                alarmas_pendientes = establecerAlarma(alarmas_pendientes)
+                ordenarAlarmas(alarmas_pendientes)
         if button_a.is_pressed():
             mostrarTiempo(horas)
             segundos += 1
@@ -134,6 +125,12 @@ def main():
             mostrarTiempo(minutos)
             segundos += 1
             sleep(1000)
+        tiempo_actual = (horas,minutos,segundos)
+        if len(alarmas_pendientes) > 0:
+            if tiempo_actual == alarmas_pendientes[0]:
+                alarma()
+                alarmas_pendientes = borrarAlarma(alarmas_pendientes)
+                segundos += 5
         limpiarDisplay()
         mostrarTiempo(segundos)
         sleep(1000) # Para que el bucle tarde un segundo en hacerse
@@ -148,3 +145,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
