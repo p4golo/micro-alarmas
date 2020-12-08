@@ -117,6 +117,13 @@ def main():
             else:
                 alarmas_pendientes = establecerAlarma(alarmas_pendientes)
                 ordenarAlarmas(alarmas_pendientes)
+            tiempo = running_time() // 1000
+            tiempo = tiempo - (horas*3600+minutos*60+segundos)
+            if tiempo + segundos >= 60:
+                segundos = (tiempo + segundos) - 60
+                minutos += 1
+            else:
+                segundos += tiempo
         if button_a.is_pressed():
             mostrarTiempo(horas)
             segundos += 1
