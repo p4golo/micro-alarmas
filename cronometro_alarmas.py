@@ -2,7 +2,8 @@ from microbit import *
 
 FILAS = 5
 PRIMERACOLUMNA = 0
-TERCERACOLUMNA = 3
+TERCERACOLUMNA = 2
+CUARTACOLUMNA = 3
 DISPLAYAPAGADO = "00000:00000"
 SEGUNDOSALARMA = 0
 MAXALARMAS = 5
@@ -11,6 +12,7 @@ SEGUNDOESPERA = 1
 AUMENTOTIEMPO = 1
 ESPERAALARMA = 5
 CAMBIOTIEMPO = 60
+AGITAR = 900
 
 zero = "99999:99999"
 one = "00000:99999"
@@ -38,40 +40,35 @@ def mostrarTiempo(tiempo):
         unidades = tiempo % 10
         unidades = fonts[unidades].split(":")
         mostrarNumeros(decenas,PRIMERACOLUMNA)
-        mostrarNumeros(unidades,TERCERACOLUMNA)
+        mostrarNumeros(unidades,CUARTACOLUMNA)
     else:
         unidades = fonts[tiempo].split(":")
-        mostrarNumeros(unidades,TERCERACOLUMNA)
+        mostrarNumeros(unidades,CUARTACOLUMNA)
 
-def limpiarDisplay():
+def limpiarDisplay(): # Pone todos los pixeles del display a 0
     display_apagado = DISPLAYAPAGADO.split(":")
     mostrarNumeros(display_apagado,PRIMERACOLUMNA)
     mostrarNumeros(display_apagado,TERCERACOLUMNA)
+    mostrarNumeros(display_apagado,CUARTACOLUMNA)
 
 def establecerTiempoAlarma():
-    """
-        Esta funcion establece las horas o los minutos de la alarma y devuelve un entero con su valor.
-    """
-    tiempo_alarma = 0
-    while not button_b.is_pressed():
+    tiempo_alarma = 0 # Esta funcion establece las horas o minutos de la alarma
+    while not button_b.is_pressed(): # Se ejecuta mientras no se pulse b
         mostrarTiempo(tiempo_alarma)
-        if button_a.is_pressed():
+        if button_a.is_pressed(): # Cada vez que se pulse a aumenta el valor de la alarma
             tiempo_alarma += 1
             sleep(500)
-        display.clear()
+        sleep(50)
+        limpiarDisplay()
     return tiempo_alarma
 
 def establecerAlarma(lista):
-    """
-        Esta funcion establece la alarma, la introduce en la lista y devuelve la lista.
-        @param lista: una lista de tuplas de 3 posiciones, donde van almacenadas las alarmas.
-    """
     nueva_lista = [(0,0,0)]*(len(lista)+1) # Creamos una nueva lista de 1 mas de tamaño que la dada
     hora_alarma = establecerTiempoAlarma()
-    sleep(1000)
+    sleep(500)
     minuto_alarma = establecerTiempoAlarma()
     alarma = (hora_alarma,minuto_alarma,SEGUNDOSALARMA) # Creamos la tupla con la alarma que vamos a introducir
-    if len(lista) == 0:
+    if len(lista) == 0: # si no hay ninguna alarma, colocamos la actual la primera
         nueva_lista[0] = alarma
     else:
         for i in range(len(lista)): # Recorremos la lista y vamos copiando todos los valores
@@ -83,16 +80,12 @@ def alarma():
     for i in range(5): # Durante 5 segundos dibuja una cara alegre y otra triste alternativamente
         display.show(Image.HAPPY)
         sleep(500)
-        display.clear()
+        limpiarDisplay()
         display.show(Image.SAD)
         sleep(500)
-        display.clear()
+        limpiarDisplay()
 
 def ordenarAlarmas(lista):
-    """
-        Esta funcion ordena las alarmas de la lista de mas proximas a mas tardias.
-        @param lista: lista de tuplas de 3 posiciones que contiene las alarmas.
-    """
     if len(lista) > 1: # si el tamaño de la lista es 0 o 1, la lista ya estaria ordenada
         for i in range(len(lista)):
             for j in range(1,len(lista)): # Recorre la lista empezando por el segundo elemento
@@ -102,12 +95,8 @@ def ordenarAlarmas(lista):
                     lista[j-1] = auxiliar
 
 def borrarAlarma(lista):
-    """
-        Esta funcion borra la primera alarma de la lista.
-        @param lista: lista de tuplas de 3 posiciones, que contiene las alarmas.
-    """
-    lista_nueva = [(0,0,0)]*(len(lista)) # Creamos una nueva lista del tamaño de la anterior -1
-    for i in range(len(lista)-1): # Recorremos la lista y vamos rellenandola
+    lista_nueva = [(0,0,0)]*(len(lista)-1) # Creamos una nueva lista del tamaño de la anterior -1
+    for i in range(len(lista)-1): # Recorremos la lista y vamos rellenandola con las alarmas que no han sonado
         lista_nueva[i] = lista[i+1]
     return lista_nueva
 
@@ -116,9 +105,12 @@ def main():
     minutos = 0
     horas = 0
     alarmas_pendientes = []
+    posx = accelerometer.get_x()
+    posy = accelerometer.get_y()
 
     while True:
-        if accelerometer.was_gesture("shake"):
+        # Si se agita el microbit
+        if (posx+AGITAR<accelerometer.get_x() or posx-AGITAR > accelerometer.get_x()) and (posx + AGITAR < accelerometer.get_x() or posx-AGITAR > accelerometer.get_x()):
             if len(alarmas_pendientes) == MAXALARMAS:
                 display.scroll("TOO MANY ALARMS")
             else:
@@ -131,6 +123,8 @@ def main():
                 minutos += 1
             else:
                 segundos += tiempo
+        posx = accelerometer.get_x() #Obtenemos nueva posicion x del microbit
+        posy = accelerometer.get_y() #Obtenemos nueva posicion y del microbit
         if button_a.is_pressed():
             mostrarTiempo(horas)
             segundos += 1
@@ -153,8 +147,12 @@ def main():
             segundos = 0
             minutos += 1
         if minutos == CAMBIOTIEMPO:
-            minutos = 0
-            horas += 1
+            if horas < 99:
+                minutos = 0
+                horas += 1
+            else: # Si llega al maximo del cronometro, se queda en 99 horas 59 minutos y siguen contando los segundos
+                horas = 99
+                minutos = 59
         limpiarDisplay()
 
 if __name__ == "__main__":
